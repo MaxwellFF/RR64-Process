@@ -1,0 +1,109 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-12-11T17:59:44Z'
+  groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: df0f9b3e82d948c19eb55c85f88dc696
+      template: 'Monitoramento Hardware Huawei'
+      name: 'Monitoramento Hardware Huawei'
+      description: 'Zabbix LTS'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 7f275d8daf7d4793bba219d5b3f51267
+          name: 'Uso de CPU'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.2011.5.25.31.1.1.1.1.5.16777216
+          key: cpu.utilizacao
+          units: '%'
+          tags:
+            - tag: CPU
+        - uuid: b3c4a3944c7943559879d40c6555d1e0
+          name: 'Uso de memoria'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.2011.5.25.31.1.1.1.1.7.16777216
+          key: memoria.utilizacao
+          units: '%'
+          tags:
+            - tag: Memoria
+        - uuid: 1a8ba6684cdd48f3be7316ae4fa7ebcd
+          name: Temperatura
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.2011.5.25.31.1.1.1.1.11.17367041
+          key: temperatura.valor
+          units: °C
+          tags:
+            - tag: Temperatura
+      discovery_rules:
+        - uuid: 36a2a5d1231b4ec1be1bb9fe1f4d32d9
+          name: 'Descoberta das FANs'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#SNMPVALUE},1.3.6.1.4.1.2011.5.25.31.1.1.10.1.1]'
+          key: descoberta.fans
+          delay: 1h
+          item_prototypes:
+            - uuid: 4b10be16d1e64cbd8d5ba2e775f6e15f
+              name: '{#SNMPVALUE}: Fan status'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.2011.5.25.31.1.1.10.1.7.{#SNMPINDEX}'
+              key: 'status.fan[hwEntityFanState.{#SNMPINDEX}]'
+              history: 2w
+              trends: '0'
+              tags:
+                - tag: FAN
+              trigger_prototypes:
+                - uuid: 33c2e6987b544479b23c3778f69bb86a
+                  expression: 'count(/Monitoramento Hardware Huawei/status.fan[hwEntityFanState.{#SNMPINDEX}],#1,"eq","{$STATUS_FAN_CRITICO}")=1'
+                  name: '{#SNMPVALUE}: Estado Crítico das FANs'
+                  priority: HIGH
+            - uuid: a64ea46561114e589558778e3e112701
+              name: '{#SNMPVALUE}: Fan speed'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.2011.5.25.31.1.1.10.1.5.{#SNMPINDEX}'
+              key: 'velocidade.fan[hwEntityFanSpeed.{#SNMPINDEX}]'
+              history: 2w
+              trends: '0'
+              units: rpm
+              tags:
+                - tag: FAN
+      tags:
+        - tag: hardware
+      macros:
+        - macro: '{$STATUS_FAN_CRITICO}'
+          value: '2'
+          description: abnormal
+      valuemaps:
+        - uuid: 9c852d8a850548f9afdb4582bfe12482
+          name: 'HUAWEI-ENTITY-EXTENT-MIB::hwEntityFanState'
+          mappings:
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+  graphs:
+    - uuid: c7fd43437dec4e7dada10a0d5e128333
+      name: 'Monitoramento da CPU'
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 00BFFF
+          item:
+            host: 'Monitoramento Hardware Huawei'
+            key: cpu.utilizacao
+    - uuid: 0f7f02ccb18b4b02b5a663aa28f1127e
+      name: 'Monitoramento da memoria'
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 00BFFF
+          item:
+            host: 'Monitoramento Hardware Huawei'
+            key: memoria.utilizacao
+    - uuid: 589ca0c67e514820840a3dcf40e6ef0e
+      name: 'Monitoramento da Temperatura'
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 00BFFF
+          item:
+            host: 'Monitoramento Hardware Huawei'
+            key: temperatura.valor
