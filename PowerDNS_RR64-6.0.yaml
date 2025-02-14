@@ -1,0 +1,63 @@
+zabbix_export:
+  version: '6.0'
+  templates:
+    - uuid: 550e8400e29b41d4a716446655440000
+      template: PowerDNS-RR64
+      name: PowerDNS-RR64
+      description: 'PowerDNS Recursor'
+      groups:
+        - name: 'Templates'
+      items:
+        - uuid: 660e8401e29b41d4a716446655440001
+          name: cache-hits
+          key: 'pdnsrec_stats[cache-hits]'
+          delay: 5m
+          units: qps
+          description: 'Counts the number of cache hits since starting, excluding hits answered from the packet-cache.'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters: []
+          tags:
+            - tag: Application
+              value: 'PowerDNS Recursor'
+        - uuid: 770e8402e29b41d4a716446655440002
+          name: questions
+          key: 'pdnsrec_stats[questions]'
+          delay: 5m
+          units: qps
+          description: 'Counts all end-user initiated queries with the RD bit set.'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters: []
+          tags:
+            - tag: Application
+              value: 'PowerDNS Recursor'
+      valuemaps:
+        - uuid: 880e8403e29b41d4a716446655440003
+          name: 'PowerDNS Security Status'
+          mappings:
+            - value: '0'
+              newvalue: 'Resolution failure'
+            - value: '1'
+              newvalue: OK
+            - value: '2'
+              newvalue: 'Upgrade recommended'
+            - value: '3'
+              newvalue: 'Upgrade mandatory'
+  graphs:
+    - uuid: 990e8404e29b41d4a716446655440004
+      name: 'Cache Hits'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: PowerDNS-RR64
+            key: 'pdnsrec_stats[cache-hits]'
+    - uuid: aa0e8405e29b41d4a716446655440005
+      name: Questions
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: PowerDNS-RR64
+            key: 'pdnsrec_stats[questions]'

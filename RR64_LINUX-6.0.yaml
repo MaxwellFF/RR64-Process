@@ -1,0 +1,81 @@
+zabbix_export:
+  version: '6.0'
+  templates:
+    - uuid: a1b2c3d4e5f64789a123b456c789d012
+      template: Linux_RR64
+      name: Linux_RR64
+      description: |
+        Adapted Linux template for Zabbix 6.0.11.
+      groups:
+        - name: 'Templates/Operating systems'
+      items:
+        - uuid: b2c3d4e5f64789a123b456c789d012a1
+          name: 'Number of running processes'
+          key: 'proc.num[,,run]'
+          history: 7d
+          type: ZABBIX_ACTIVE
+        - uuid: c3d4e5f64789a123b456c789d012a1b2
+          name: 'Load average (1m avg)'
+          key: 'system.cpu.load[all,avg1]'
+          history: 7d
+          value_type: FLOAT
+        - uuid: d4e5f64789a123b456c789d012a1b2c3
+          name: 'Available memory in %'
+          key: 'vm.memory.size[pavailable]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+        - uuid: e5f64789a123b456c789d012a1b2c3d4
+          name: 'Memory utilization'
+          type: DEPENDENT
+          key: vm.memory.utilization
+          delay: '0'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return (100-value);'
+          master_item:
+            key: 'vm.memory.size[pavailable]'
+        - uuid: f64789a123b456c789d012a1b2c3d4e5
+          name: 'Zabbix agent availability'
+          type: INTERNAL
+          key: 'zabbix[host,agent,available]'
+          history: 7d
+      discovery_rules:
+        - uuid: 789a123b456c789d012a1b2c3d4e5f64
+          name: 'Network interface discovery'
+          key: net.if.discovery
+          delay: 1h
+          item_prototypes:
+            - uuid: 89a123b456c789d012a1b2c3d4e5f647
+              name: 'Interface {#IFNAME}: Bits received'
+              key: 'net.if.in["{#IFNAME}"]'
+              delay: 3m
+              history: 7d
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters: []
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+            - uuid: 9a123b456c789d012a1b2c3d4e5f6478
+              name: 'Interface {#IFNAME}: Bits sent'
+              key: 'net.if.out["{#IFNAME}"]'
+              delay: 3m
+              history: 7d
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters: []
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+      macros:
+        - macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+        - macro: '{$NET.IF.IFNAME.MATCHES}'
+          value: '^.*$'
