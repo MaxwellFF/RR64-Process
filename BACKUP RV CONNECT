@@ -1,0 +1,9 @@
+Processo realização backup das OLT's Parks RV CONNECT.
+
+Esse processo tem que ser realizado até o ajuste do backup automatico. 
+
+Entrar nos equipamentos OLT Parks via SSH em um terminal linux (recomendo acessar pela vm do zabbix cor), inserir o comando show running-config.
+Copiar toda a configuração do equipamento e colar na aba "backup manual". 
+
+
+Alguns equipamentos so iram acessar pelo equipamento tunel(mikrotik), esse processo é mais demorado.
